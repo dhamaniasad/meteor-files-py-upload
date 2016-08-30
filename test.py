@@ -11,6 +11,6 @@ client.subscribe('files.images.all');
 
 uploader = Uploader(client, 'Images', transport='http', verbose=True)
 
-uploader.upload("test.png")
+uploader.upload("test2.jpg")
 while not uploader.finished:
     time.sleep(0.1)

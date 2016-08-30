@@ -14,7 +14,7 @@ class Uploader():
     self.verbose = verbose
     if not transport in ['ddp', 'http']:
         raise Exception('invalid transport.')
-    self.transport = transport
+    self.transport = "ddp"
     self.methodNames = {
       "_Abort": "_FilesCollectionAbort_" + collectionName,
       "_Write": "_FilesCollectionWrite_" + collectionName,
@@ -37,6 +37,7 @@ class Uploader():
     #print(result)
 
   def _upload_end_callback(self, error, result):
+    print(result)
     if error:
       self.error = True
       print(error)
@@ -46,7 +47,9 @@ class Uploader():
         print('upload finished.')
 
   def _upload_start_callback(self, error, metaResult):
+    print("callback")
     if error:
+      # print("error")
       self.error = True
       print(error)
       return
@@ -54,11 +57,13 @@ class Uploader():
       with open(self.filePath, "rb") as _file:
         for i in xrange(self.chunkCount):
           if self.error:
+            # print("error")
             raise
           if self.verbose:
               print('sending: '+str(i+1)+'/'+str(self.chunkCount))
           encoded_string = base64.b64encode(_file.read(self.chunkSize))
           if self.transport == 'ddp':
+              print("ddp")
               opts = {
                 "eof": False,
                 "fileId": self.fileId,
@@ -67,9 +72,10 @@ class Uploader():
               }
               self.client.call(self.methodNames['_Write'], [opts], self._upload_write_callback)
           else:
+              # print("not ddp")
               baseurl = self.client.ddp_client.url
-              assert baseurl.startswith('ws://') and baseurl.endswith('/websocket')
-              uploadRoute = 'http' + baseurl[2:-10] + metaResult['uploadRoute']
+              # assert baseurl.startswith('ws://') and baseurl.endswith('/websocket')
+              uploadRoute = 'http' + "://127.0.0.1/websocket" + metaResult['uploadRoute']
               headers = {
                 "x-eof": 0,
                 "x-fileid": self.fileId,
